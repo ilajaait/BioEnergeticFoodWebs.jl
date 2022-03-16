@@ -114,3 +114,69 @@ Return BitVector of primary producers.
 function whoisproducer(A)
     vec(.!any(A, dims=2))
 end
+
+"""
+**Create facilitation links**
+
+Takes trophic matrix (A) and number or connectance of facilitation links (resp. L and C).
+Returns matrix of facilitation links.
+Facilitating species are in rows, facilitated species are in columns.
+"""
+function facilitationlinks(A, L::Int64)
+
+    # Test.
+    @assert L >= 0
+
+    # Find candidate links.
+    S = numberspecies(A)
+    facilitation_matrix = zeros(Int, S, S) # initialize
+    candidates = wherecanfacilitate(A)
+    size(candidates, 1) < L ? throw(ArgumentError("L is too large.")) : nothing
+
+    # Choose randomly between candidates.
+    choosen = sample(candidates, L, replace=false)
+    for l in 1:L
+        i, j = choosen[l]
+        facilitation_matrix[i, j] = 1
+    end
+
+    facilitation_matrix
+end
+
+function facilitationlinks(A, C::Float64)
+
+    # Test. Connectance is in [0,1]?
+    @assert C >= 0.0
+    @assert C <= 1.0
+
+    # Create facilitation matrix.
+    S = numberspecies(A)
+    L = C * (S^2) # number of facilitation links
+    L = Int64(round(L)) # formatting
+    #? Creal = L / S^2 # realized connectance
+    facilitationlinks(A, L) # facilitation matrix
+end
+
+"""
+**Where facilitation links can be added?**
+
+Find directed pair of species between which facilitation could be added.
+Returns the list of indexes of candidate pairs.
+"""
+function wherecanfacilitate(A)
+
+    # Set up.
+    S = numberspecies(A)
+    candidates = []
+    isproducer = whoisproducer(A)
+    producers = (1:S)[isproducer] # indexes of producers
+
+    # Loop over facilitation matrix and add candidates.
+    for j in producers
+        for i in 1:S
+            i != j ? push!(candidates, [i, j]) : nothing
+        end
+    end
+
+    candidates
+end

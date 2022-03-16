@@ -36,4 +36,60 @@ end
     @test BioEnergeticFoodWebs.whoisproducer(A) == [0, 0]
 end
 
+@testset "Finding candidates for facilitation links." begin
+
+    # Only producer.
+    A = [0 0 0; 0 0 0; 0 0 0]
+    @test BioEnergeticFoodWebs.wherecanfacilitate(A) == [[2, 1], [3, 1], [1, 2], [3, 2],
+        [1, 3], [2, 3]]
+
+    # Producers = species 1 & 2.
+    A = [0 0 0; 0 0 0; 1 0 0]
+    @test BioEnergeticFoodWebs.wherecanfacilitate(A) == [[2, 1], [3, 1], [1, 2], [3, 2]]
+
+    # Producers = species 1.
+    A = [0 0 0; 0 0 1; 1 0 0]
+    @test BioEnergeticFoodWebs.wherecanfacilitate(A) == [[2, 1], [3, 1]]
+
+    # No producer.
+    A = [0 1 0; 0 0 1; 1 0 0]
+    @test BioEnergeticFoodWebs.wherecanfacilitate(A) == []
+
+end
+
+@testset "Creating facilitation matrix from number of links." begin
+
+    # No producer.
+    A = [0 1 0; 0 0 1; 1 0 0]
+    @test_throws ArgumentError BioEnergeticFoodWebs.facilitationlinks(A, 1)
+
+    # Only producer.
+    A = [0 0 0; 0 0 0; 0 0 0]
+    @test BioEnergeticFoodWebs.facilitationlinks(A, 0) == [0 0 0; 0 0 0; 0 0 0]
+    @test BioEnergeticFoodWebs.facilitationlinks(A, 6) == [0 1 1; 1 0 1; 1 1 0]
+    for L in 1:6
+        @test count(==(1), BioEnergeticFoodWebs.facilitationlinks(A, L)) == L
+    end
+
+end
+
+@testset "Creating facilitation matrix from connectance." begin
+
+    # No producer.
+    A = [0 1 0; 0 0 1; 1 0 0]
+    @test_throws ArgumentError BioEnergeticFoodWebs.facilitationlinks(A, 1.0)
+
+    # Connectance outside [0,1].
+    @test_throws AssertionError BioEnergeticFoodWebs.facilitationlinks(A, 1.1)
+    @test_throws AssertionError BioEnergeticFoodWebs.facilitationlinks(A, -0.1)
+
+    # Only producer.
+    A = zeros(Int, 4, 4)
+    for L in 1:12
+        C = L / 16
+        @test count(==(1), BioEnergeticFoodWebs.facilitationlinks(A, C)) == L
+    end
+
+end
+
 end
