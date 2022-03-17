@@ -92,4 +92,39 @@ end
 
 end
 
+@testset "Creating competition matrix from number of links." begin
+
+    # No producer.
+    A = [0 1 0; 0 0 1; 1 0 0]
+    @test_throws ArgumentError BioEnergeticFoodWebs.competitionlinks(A, 1)
+
+    # Only producer.
+    A = [0 0 0; 0 0 0; 0 0 0]
+    @test BioEnergeticFoodWebs.competitionlinks(A, 0) == [0 0 0; 0 0 0; 0 0 0]
+    @test BioEnergeticFoodWebs.competitionlinks(A, 6) == [0 1 1; 1 0 1; 1 1 0]
+    for L in 1:6
+        @test count(==(1), BioEnergeticFoodWebs.competitionlinks(A, L)) == L
+    end
+
+end
+
+@testset "Creating competition matrix from connectance." begin
+
+    # No producer.
+    A = [0 1 0; 0 0 1; 1 0 0]
+    @test_throws ArgumentError BioEnergeticFoodWebs.competitionlinks(A, 1.0)
+
+    # Connectance outside [0,1].
+    @test_throws AssertionError BioEnergeticFoodWebs.competitionlinks(A, 1.1)
+    @test_throws AssertionError BioEnergeticFoodWebs.competitionlinks(A, -0.1)
+
+    # Only producer.
+    A = zeros(Int, 4, 4)
+    for L in 1:12
+        C = L / 16
+        @test count(==(1), BioEnergeticFoodWebs.competitionlinks(A, C)) == L
+    end
+
+end
+
 end

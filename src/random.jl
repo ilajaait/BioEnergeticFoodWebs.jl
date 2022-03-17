@@ -180,3 +180,74 @@ function wherecanfacilitate(A)
 
     candidates
 end
+
+""" Find sessile species. """
+function whoissessile(A)
+    issessile = whoisproducer(A) #? sessile ⟺ producer (can change)
+    issessile
+end
+
+"""
+**Where competition for space links can be added?**
+
+Find directed pair of species between which facilitation could be added.
+Returns the list of indexes of candidate pairs.
+"""
+function wherecancompete(A)
+
+    # Set up.
+    S = numberspecies(A)
+    candidates = []
+    issessile = whoissessile(A)
+    sessile = (1:S)[issessile] # indexes sessile species
+
+    # Loop to find candidates for competition.
+    for i in sessile
+        for j in sessile
+            i != j ? push!(candidates, [i, j]) : nothing
+        end
+    end
+
+    candidates
+end
+
+"""
+**Create competition links**
+
+Takes trophic matrix (A) and number or connectance of competition links (resp. L and C).
+Returns matrix of competition links.
+Facilitating species are in rows, facilitated species are in columns.
+"""
+function competitionlinks(A, L::Int64)
+
+    # Test.
+    @assert L >= 0
+
+    # Set up.
+    S = numberspecies(A)
+    competition_matrix = zeros(Int, S, S) # initialize
+    candidates = wherecancompete(A)
+    size(candidates, 1) < L ? throw(ArgumentError("Too many links. Decrease L.")) : nothing
+
+    # Choose randomly between candidates.
+    choosen = sample(candidates, L, replace=false)
+    for l in 1:L
+        i, j = choosen[l] # pick index of selected link
+        competition_matrix[i, j] = 1 # create link
+    end
+
+    competition_matrix
+end
+
+function competitionlinks(A, C::Float64)
+    # Test. Connectance is in [0,1]?
+    @assert C >= 0.0
+    @assert C <= 1.0
+
+    # Create competition matrix.
+    S = numberspecies(A)
+    L = C * (S^2) # number of competition links
+    L = Int64(round(L)) # formatting
+    #? Creal = L / S^2 # realized connectance
+    competitionlinks(A, L) # competition matrix
+end
