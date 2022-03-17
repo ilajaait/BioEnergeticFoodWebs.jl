@@ -51,6 +51,13 @@ function get_growth(parameters, biomass; c = 0)
       if parameters[:is_producer][i]
         gr = growthrate(parameters, biomass, i, c = c)[1]
         G[i] = (parameters[:r][i] * gr * biomass[i])
+        # If facilitation increase growth rate. 
+        if !isnothing(parameters[:facilitation_matrix])
+          facilitation_matrix = parameters[:facilitation_matrix] # get fac. matrix
+          e0 = parameters[:facilitation_intensity] # fac. intensity 
+          e = 1 + e0*sum(facilitation_matrix[:,i]) # factor 
+          G[i] = G[i]*e # new growth rate 
+        end 
         if parameters[:productivity] == :nutrients #Nutrient intake
           growth[i] = G[i] - (parameters[:x][i] * biomass[i])
         else
@@ -235,6 +242,7 @@ function dBdt(derivative, biomass, parameters::Dict{Symbol,Any}, t)
 
   # Balance
   dbdt = zeros(eltype(biomass), length(biomass))
+  
   for i in eachindex(dbdt)
     dbdt[i] = growth[i] + gain[i] - loss[i] - mortality[i]
   end

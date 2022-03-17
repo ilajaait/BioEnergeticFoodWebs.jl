@@ -144,7 +144,9 @@ function model_parameters(A;
         scale_metabolism::Bool = false,
         scale_maxcons::Bool = false,
         dry_mass_293::Array{Float64, 1}=[0.0],
-        TSR_type::Symbol = :no_response)
+        TSR_type::Symbol = :no_response,
+        facilitation_matrix = nothing, 
+        facilitation_intensity = 0.1)
 
   check_food_web(A)
 
@@ -364,6 +366,10 @@ function model_parameters(A;
   # Step  20 -- Density dependent mortality
   parameters[:dc] = dc
   parameters[:dp] = dp
+
+  # Step 21 -- Facilitation matrix 
+  parameters[:facilitation_matrix] = facilitation_matrix
+  parameters[:facilitation_intensity] = facilitation_intensity 
 
   check_parameters(parameters)
 
