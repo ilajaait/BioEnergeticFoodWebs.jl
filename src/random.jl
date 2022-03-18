@@ -251,3 +251,40 @@ function competitionlinks(A, C::Float64)
     #? Creal = L / S^2 # realized connectance
     competitionlinks(A, L) # competition matrix
 end
+
+# TODO: Create predator interference matrix
+
+""" Find predators of a given prey, given the trophic network (A). """
+function whoispredator(A, prey)
+    S = numberspecies(A)
+    ispredator = A[:, prey] .== 1
+    (1:S)[ispredator]
+end
+
+function wherecaninterfere(A)
+
+    #  Set up.
+    S = numberspecies(A)
+    candidates = []
+
+    # Loop over species to find candidates.
+    for i in 1:S
+        predators = whoispredator(A, i)
+        length(predators) >= 2 ? append!(candidates, push!.(allpairs(predators), i)) : nothing
+    end
+
+    candidates
+end
+
+""" Find all pairs of values of a given vector """
+function allpairs(vector)
+    n = length(vector)
+    pairs = []
+    for i in 1:n, j in (i+1):n
+        push!(pairs, [vector[i], vector[j]])
+        push!(pairs, [vector[j], vector[i]])
+    end
+    pairs
+end
+
+# TODO: Create refuge matrix

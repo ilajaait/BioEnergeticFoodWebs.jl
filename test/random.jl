@@ -127,4 +127,43 @@ end
 
 end
 
+@testset "Finding candidates for predator interference." begin
+
+    @testset "Who is predator?" begin
+
+        # No predators.
+        A = zeros(Int, 3, 3)
+        @test BioEnergeticFoodWebs.whoispredator(A, 1) == []
+        @test BioEnergeticFoodWebs.whoispredator(A, 2) == []
+        @test BioEnergeticFoodWebs.whoispredator(A, 3) == []
+
+        # Predators.
+        A = [0 1 1; 0 0 1; 0 0 0]
+        @test BioEnergeticFoodWebs.whoispredator(A, 1) == []
+        @test BioEnergeticFoodWebs.whoispredator(A, 2) == [1]
+        @test BioEnergeticFoodWebs.whoispredator(A, 3) == [1, 2]
+    end
+
+    @testset "All pairs." begin
+        @test BioEnergeticFoodWebs.allpairs([1, 2]) == [[1, 2], [2, 1]]
+        @test BioEnergeticFoodWebs.allpairs([3, 4]) == [[3, 4], [4, 3]]
+    end
+
+    @testset "Where can interfere?" begin
+
+        # No predator.
+        A = zeros(Int, 3, 3)
+        @test BioEnergeticFoodWebs.wherecaninterfere(A) == []
+
+        # Interference between predator 1 and 2 for prey 3.
+        A = [0 0 1; 0 0 1; 0 0 0]
+        @test BioEnergeticFoodWebs.wherecaninterfere(A) == [[1, 2, 3], [2, 1, 3]]
+
+        # Interference between predator 1 and 2 for prey 3 and 4.
+        A = [0 0 1 1; 0 0 1 1; 0 0 0 0; 0 0 0 0]
+        @test BioEnergeticFoodWebs.wherecaninterfere(A) == [[1, 2, 3], [2, 1, 3],
+            [1, 2, 4], [2, 1, 4]]
+    end
+end
+
 end
