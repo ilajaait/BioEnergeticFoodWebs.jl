@@ -100,3 +100,17 @@ function nichemodel(S::Int64, C::Float64; tolerance::Float64=0.05, toltype::Symb
     end
     return A
 end
+
+"""Compute number of species in the system from the trophic matrix."""
+numberspecies(A) = size(A, 1)
+
+"""
+**Who is a primary producer?**
+
+Return BitVector of primary producers.
+1 - The species is a primary producer.
+0 - The species is a consumer (i.e. consumes at least one other species).
+"""
+function whoisproducer(A)
+    vec(.!any(A, dims=2))
+end
