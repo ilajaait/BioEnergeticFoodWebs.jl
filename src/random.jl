@@ -6,13 +6,13 @@ Returns the connectance of a square matrix, defined as ``S/L^2``.
 """
 function connectance(S::Int64, L::Int64)
     @assert S > 1
-    C = L/S^2
+    C = L / S^2
     @assert C < 1.0
     @assert C > 0.0
     return C
 end
 
-function connectance(A::Array{Int64, 2})
+function connectance(A::Array{Int64,2})
     return connectance(size(A, 1), sum(A))
 end
 
@@ -29,7 +29,7 @@ function nichemodel(S::Int64, L::Int64)
     C = connectance(S, L)
 
     # Beta distribution parameter
-    β = 1/(2*C)-1.0
+    β = 1 / (2 * C) - 1.0
 
     # Pre-allocate the network
     A = zeros(Int64, (S, S))
@@ -45,7 +45,7 @@ function nichemodel(S::Int64, L::Int64)
 
     # Generate random centroids
     for s in 1:S
-        c[s] = rand(Uniform(r[s]/2, n[s]))
+        c[s] = rand(Uniform(r[s] / 2, n[s]))
     end
 
     # The smallest species has a body size and range of 0
@@ -91,12 +91,12 @@ function nichemodel(S::Int64, C::Float64; tolerance::Float64=0.05, toltype::Symb
     L = round(Int64, C * S^2)
     A = nichemodel(S, L)
     if toltype == :abs
-      tolfunc = (x) -> abs(x-C) < tolerance
+        tolfunc = (x) -> abs(x - C) < tolerance
     else
-      tolfunc = (x) -> abs(1-x/C) < tolerance
+        tolfunc = (x) -> abs(1 - x / C) < tolerance
     end
-    while !(tolfunc(BioEnergeticFoodWebs.connectance(A)))
-      A = nichemodel(S, L)
+    while !(tolfunc(connectance(A)))
+        A = nichemodel(S, L)
     end
     return A
 end

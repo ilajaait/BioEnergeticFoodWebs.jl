@@ -1,7 +1,8 @@
 module TestRandom
-    using Test
-    using BioEnergeticFoodWebs
+using Test
+using BioEnergeticFoodWebs
 
+@testset "Niche model." begin
     @test_throws AssertionError nichemodel(10, 150)
 
     A = nichemodel(10, 20)
@@ -17,5 +18,6 @@ module TestRandom
 
     A = [0 1; 1 0]
     @test BioEnergeticFoodWebs.connectance(A) == 0.5
+end
 
 end
